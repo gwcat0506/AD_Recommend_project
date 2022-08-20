@@ -1,0 +1,126 @@
+import math
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+plt.style.use("seaborn")
+sns.set(font_scale = 1)
+sns.set_style("whitegrid")
+
+import plotly.express as px
+from scipy.stats import mode
+import chart_studio.plotly as py
+import cufflinks as cf
+cf.go_offline(connected=True)
+
+import plotly.graph_objects as go
+import plotly.offline as pyo
+pyo.init_notebook_mode()
+
+from plotly.subplots import make_subplots
+
+import missingno as msno
+
+import warnings
+warnings.filterwarnings(action='ignore')
+
+plt.rcParams['font.family']='S-Core Dream'
+plt.rcParams['axes.unicode_minus'] = False
+
+
+
+
+#load data
+
+
+Bike = pd.read_csv("C://Users//82106//Downloads//final_final.csv", index_col=0)
+Bike = Bike.drop('번호',axis=1)
+Bike = Bike.drop('대여소명',axis=1)
+Bike = Bike.drop('탄소량',axis=1)
+Bike = Bike.drop('위도',axis=1)
+Bike = Bike.drop('경도',axis=1)
+Bike["대여시간"] = Bike["대여시간"].astype(str)
+Bike["대여소번호"] = Bike["대여소번호"].astype(str)
+Bike["운동량"][Bike["운동량"]== r"\N"] = -1
+Bike["운동량"] = pd.to_numeric(Bike["운동량"])
+
+#Bike.head()
+#Bike.info()
+#Bike.isnull().sum()
+
+Bikenum = pd.read_csv("C://Users//82106//Downloads//3. 공공자전거 대여소 정보(22.06월 기준).csv", encoding='cp949', skiprows=4)
+Bikenum['자전거대수'] = Bikenum.iloc[:,[7,8]].sum(axis=1)
+Bikenum= Bikenum.iloc[:,[0,10]]
+Bikenum.columns = ['대여소번호','자전거대수']
+Bikenum['대여소번호'] = Bikenum['대여소번호'].astype(str)
+#Bikenum.info()
+
+
+
+
+#change continuous values into discrete values
+
+
+def quantiles(a):
+    q1 = np.quantile(a, 0.25)
+    q2 = np.quantile(a, 0.5)
+    q3 = np.quantile(a, 0.75)
+    newcolumn = []
+    for row in a:
+        if row < q1 : newcolumn.append("0")
+        elif row <q2 : newcolumn.append("1")
+        elif row <q3 : newcolumn.append("2")
+        else : newcolumn.append("3")
+        
+    a = newcolumn
+    return a
+
+Bike['운동량'] = quantiles(Bike['운동량'])
+Bike['이용시간(분)'] = quantiles(Bike['이용시간(분)'])
+Bike['이동거리(M)'] = quantiles(Bike['이동거리(M)'])
+
+
+
+
+#add "number of bikes" column into the data
+
+
+NofBikes = pd.Series(Bikenum.자전거대수.values, index=Bikenum.대여소번호).to_dict()
+
+def numbers(a):
+    newcolumn=[]
+    for n in a:
+        m= NofBikes[n]
+        newcolumn.append(m)
+    return(newcolumn)
+
+Bike['자전거대수'] = numbers(Bike['대여소번호'])
+#Bike.info()
+
+Bike['요일'].replace({'월':0,'화':1,'수':2,'목':3,'금':4,'토':5,'일':6},inplace=True)
+Bike['대여구분코드'].replace({'정기권':0, '일일권':1, '일일권(비회원)':2, '단체권':3}, inplace=True)
+Bike['연령대코드'].replace({'N':0, '10대':1, '20대':2, '30대':3,
+'40대':3, '50대':4, '60대':4, '70대':5},
+inplace=True)
+Bike['소재지'].replace({'강서구':0,'송파구':1,'영등포구':2,'노원구':3,'양천구':4,'마포구':5,'광진구':6,
+'강동구':7,'구로구':8,'성동구':9,'동대문구':10,'종로구':11,'서초구':12,'강남구':13,'중랑구':14,
+'관악구':15,'은평구':16,'성북구':17,'중구':18,'용산구':19,'서대문구':20,'동작구':21,'도봉구':22,
+'금천구':23,'강북구':24},inplace=True)
+Bike['성별'].replace({'M':0,'N':1,'F':2}, inplace=True)
+Bike['대여시간'].replace({0:0,1:0,2:0,3:0,4:0,5:0,6:0,20:0,21:0,22:0,23:0,7:1,8:1,9:1,17:1,18:1,19:1,10:2,11:2,12:2,13:2,14:2,15:2,16:2},inplace=True)
+Bike['산업종류'].replace({'사업시설관리 및 사업지원 서비스업':0, '보건업 및 사회복지 서비스업':1, '금융 및 보험업':2, '운수업':3,
+'교육 서비스업':4, '도매 및 소매업':5, '출판, 영상, 방송통신 및 정보서비스업':6, '숙박 및 음식점업':7,
+'공공행정, 국방 및 사회보장 행정':8, '건설업':9, '전문, 과학 및 기술 서비스업':10,
+'예술, 스포츠 및 여가관련 서비스업':10, '제조업':11, '보건업 및 사회복지 서비스업\t':12, '부동산업 및 임대업':13,
+'하수 · 폐기물 처리, 원료재생 및 환경복원업':14},
+inplace=True)
+Bike["운동량"] = pd.to_numeric(Bike["운동량"])
+Bike["대여시간"] = pd.to_numeric(Bike["대여시간"])
+Bike["대여소번호"] = pd.to_numeric(Bike["대여소번호"])
+Bike["이동거리(M)"] = pd.to_numeric(Bike["이동거리(M)"])
+Bike["이용시간(분)"] = pd.to_numeric(Bike["이용시간(분)"])
+
+
+Bike.info()
+#Bike.head()
+Bike.to_csv("C://Datacampus_project//Bike.csv", encoding='utf-8')
