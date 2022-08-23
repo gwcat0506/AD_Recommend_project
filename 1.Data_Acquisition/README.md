@@ -3,7 +3,7 @@
 1. Data_Acquisition
 	1. AD_link_crawling - TVCF - https://tvcf.co.kr/Worked/CF/#
 	2. 동별사업체-종사자수 - 통계청 지리정보 자료신청 - https://sgis.kostat.go.kr/view/pss/openDataIntrcn 
-  3. 서울시 전철 좌표 데이터 출처 : https://observablehq.com/@taekie/seoul_subway_station_coordinate
+  	3. 서울시 전철 좌표 데이터 출처 : https://observablehq.com/@taekie/seoul_subway_station_coordinate
 
 2. Data_Preprocessing
 	코드 - 사용 이름 - 원본 파일 이름 - 출처
