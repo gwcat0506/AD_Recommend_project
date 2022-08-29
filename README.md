@@ -46,3 +46,9 @@
 - 1.Pycaret - 가상환경 학습 모델.ipynb
 - 2.RandomForest_XGBoost_모델_비교_분석.ipynb
 - 3.추가_학습_모델.ipynb
+
+
+
+[데청캠_팀퍼스트.pdf](https://github.com/gwcat0506/AD_Recommend_project/files/9446933/_.pdf)
+
+
